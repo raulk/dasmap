@@ -1,0 +1,253 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import AtomPill from '../../components/AtomPill.astro';
+import MaturityBadge from '../../components/MaturityBadge.astro';
+import CategoryBadge from '../../components/CategoryBadge.astro';
+import { ATOMS } from '../../data/atoms';
+import { EDGES } from '../../data/edges';
+import { COMPOSITES } from '../../data/composites';
+import { CATEGORIES } from '../../data/categories';
+import { PROPERTIES } from '../../data/properties';
+
+export async function getStaticPaths() {
+  const atoms = await getCollection('atoms');
+  return atoms.map(entry => ({
+    params: { id: entry.data.id.toLowerCase() },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+
+const atomId = entry.data.id;
+const atomData = ATOMS.find(a => a.id === atomId);
+const cat = atomData?.cat ?? entry.data.category;
+const category = CATEGORIES[cat as keyof typeof CATEGORIES];
+
+type Direction = 'outgoing' | 'incoming';
+interface RelationshipRow {
+  target: string;
+  type: string;
+  direction: Direction;
+  note?: string;
+}
+
+const relationships: RelationshipRow[] = [];
+
+for (const edge of EDGES) {
+  if (edge.from === atomId) {
+    relationships.push({
+      target: edge.to,
+      type: edge.type,
+      direction: 'outgoing',
+      note: edge.note,
+    });
+  } else if (edge.to === atomId) {
+    relationships.push({
+      target: edge.from,
+      type: edge.type,
+      direction: 'incoming',
+      note: edge.note,
+    });
+  }
+}
+
+const sameCategory = ATOMS.filter(a => a.cat === cat && a.id !== atomId);
+const inComposites = COMPOSITES.filter(c => c.atoms.includes(atomId));
+
+function targetUrl(target: string): string | null {
+  if (target.startsWith('P')) return `/properties/${target.toLowerCase()}`;
+  const matchedAtom = ATOMS.find(a => a.id === target);
+  if (matchedAtom) return `/atoms/${target.toLowerCase()}`;
+  return null;
+}
+
+function targetName(target: string): string {
+  if (target.startsWith('P')) {
+    const prop = PROPERTIES.find(p => p.id === target);
+    return prop ? prop.name : target;
+  }
+  const matched = ATOMS.find(a => a.id === target);
+  return matched ? matched.name : target;
+}
+
+const edgeTypeColors: Record<string, string> = {
+  requires: '#dc2626',
+  enables: '#16a34a',
+  'benefits from': '#2563eb',
+  conflicts: '#ea580c',
+  alternative: '#7c3aed',
+  complements: '#0891b2',
+  resolves: '#059669',
+  evolves: '#d97706',
+  transforms: '#be185d',
+};
+---
+
+<Base title={atomId} description={`${atomData?.name ?? entry.data.name} — DAS design atom`}>
+  <div class="max-w-3xl">
+
+    <!-- Breadcrumb -->
+    <nav class="text-[11px] font-mono mb-6 animate-in" style="color: var(--c-text-3);">
+      <a href="/" class="hover:underline underline-offset-2">dasmap</a>
+      <span class="mx-1">/</span>
+      <a href="/atoms" class="hover:underline underline-offset-2">atoms</a>
+      <span class="mx-1">/</span>
+      <span style="color: var(--c-text-2);">{atomId}</span>
+    </nav>
+
+    <!-- Header -->
+    <header class="mb-10 animate-in animate-in-delay-1">
+      <h1
+        class="font-mono font-bold text-[36px] tracking-[-0.04em] leading-none mb-2"
+        style={{ color: category.color }}
+      >
+        {atomId}
+      </h1>
+      <p class="text-lg font-medium leading-snug mb-3" style="color: var(--c-text);">
+        {atomData?.name ?? entry.data.name}
+      </p>
+      <div class="flex flex-wrap gap-2 items-center">
+        <CategoryBadge cat={cat} />
+        <MaturityBadge maturity={entry.data.maturity} />
+        {inComposites.length > 0 && (
+          <span class="text-[11px] font-mono" style="color: var(--c-text-3);">
+            {inComposites.length} composite{inComposites.length > 1 ? 's' : ''}
+          </span>
+        )}
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="prose max-w-none mb-12 animate-in animate-in-delay-2">
+      <Content />
+    </div>
+
+    <!-- Relationships -->
+    {relationships.length > 0 && (
+      <section class="mb-10 animate-in animate-in-delay-3">
+        <h2
+          class="text-[11px] font-semibold uppercase tracking-[0.08em] mb-3 pb-2"
+          style="color: var(--c-text-3); border-bottom: 1px solid var(--c-border);"
+        >
+          Relationships
+          <span class="font-mono ml-1">{relationships.length}</span>
+        </h2>
+        <table class="w-full text-[13px]">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--c-border);">
+              <th class="text-left px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] w-6" style="color: var(--c-text-3);"></th>
+              <th class="text-left px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em]" style="color: var(--c-text-3);">Target</th>
+              <th class="text-left px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] hidden sm:table-cell" style="color: var(--c-text-3);">Type</th>
+              <th class="text-left px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] hidden md:table-cell" style="color: var(--c-text-3);">Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            {relationships.map(rel => {
+              const url = targetUrl(rel.target);
+              const targetAtom = ATOMS.find(a => a.id === rel.target);
+              const typeColor = edgeTypeColors[rel.type] ?? '#71717a';
+              return (
+                <tr style="border-bottom: 1px solid var(--c-border);">
+                  <td class="px-2 py-2 font-mono text-sm font-bold" style={{ color: rel.direction === 'outgoing' ? 'var(--c-green)' : 'var(--c-blue)' }}>
+                    {rel.direction === 'outgoing' ? '\u2192' : '\u2190'}
+                  </td>
+                  <td class="px-2 py-2">
+                    {url ? (
+                      targetAtom ? (
+                        <AtomPill
+                          id={targetAtom.id}
+                          name={targetAtom.name}
+                          cat={targetAtom.cat}
+                          maturity={targetAtom.maturity}
+                          href={url}
+                        />
+                      ) : (
+                        <a
+                          href={url}
+                          class="inline-flex items-center gap-1.5 text-[11px] font-medium hover:underline underline-offset-2"
+                          style="color: var(--c-blue);"
+                        >
+                          <span class="font-mono font-semibold">{rel.target}</span>
+                          <span style="color: var(--c-text-2);">{targetName(rel.target)}</span>
+                        </a>
+                      )
+                    ) : (
+                      <span class="inline-flex items-center gap-1.5 text-[11px] font-medium" style="color: var(--c-text-3);">
+                        <span class="font-mono font-semibold">{rel.target}</span>
+                        <span>{targetName(rel.target)}</span>
+                      </span>
+                    )}
+                  </td>
+                  <td class="px-2 py-2 hidden sm:table-cell">
+                    <span
+                      class="text-[11px] font-semibold px-1.5 py-0.5 rounded"
+                      style={{
+                        background: `${typeColor}12`,
+                        color: typeColor,
+                      }}
+                    >
+                      {rel.type}
+                    </span>
+                  </td>
+                  <td class="px-2 py-2 hidden md:table-cell text-[12px] max-w-xs" style="color: var(--c-text-3);">
+                    {rel.note ?? ''}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </section>
+    )}
+
+    <!-- Composites -->
+    {inComposites.length > 0 && (
+      <section class="mb-10">
+        <h2
+          class="text-[11px] font-semibold uppercase tracking-[0.08em] mb-3 pb-2"
+          style="color: var(--c-text-3); border-bottom: 1px solid var(--c-border);"
+        >
+          Used in composites
+        </h2>
+        <div class="flex flex-wrap gap-2">
+          {inComposites.map(comp => (
+            <a
+              href={`/composites/${comp.id}`}
+              class="text-[12px] font-medium px-2.5 py-1 rounded hover:opacity-75 transition-opacity"
+              style="background: var(--c-surface-dim); color: var(--c-text-2); border: 1px solid var(--c-border);"
+            >
+              {comp.name}
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Same category -->
+    {sameCategory.length > 0 && (
+      <section class="mb-10">
+        <h2
+          class="text-[11px] font-semibold uppercase tracking-[0.08em] mb-3 pb-2"
+          style="color: var(--c-text-3); border-bottom: 1px solid var(--c-border);"
+        >
+          Also in {cat} {category.name}
+        </h2>
+        <div class="flex flex-wrap gap-1.5">
+          {sameCategory.map(a => (
+            <AtomPill
+              id={a.id}
+              name={a.name}
+              cat={a.cat}
+              maturity={a.maturity}
+              href={`/atoms/${a.id.toLowerCase()}`}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
+  </div>
+</Base>

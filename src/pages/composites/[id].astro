@@ -1,0 +1,188 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import AtomPill from '../../components/AtomPill.astro';
+import MaturityBadge from '../../components/MaturityBadge.astro';
+import { ATOMS } from '../../data/atoms';
+import { PROPERTIES } from '../../data/properties';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('composites');
+  return entries.map((entry) => ({
+    params: { id: entry.data.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+
+const compositeAtomIds = entry.data.atoms;
+
+const impacts = new Map<string, { benefits: string[]; hurts: string[] }>();
+for (const atomId of compositeAtomIds) {
+  const atom = ATOMS.find((a) => a.id === atomId);
+  if (!atom) continue;
+  for (const pid of atom.benefits) {
+    if (!impacts.has(pid)) impacts.set(pid, { benefits: [], hurts: [] });
+    impacts.get(pid)!.benefits.push(atomId);
+  }
+  for (const pid of atom.hurts) {
+    if (!impacts.has(pid)) impacts.set(pid, { benefits: [], hurts: [] });
+    impacts.get(pid)!.hurts.push(atomId);
+  }
+}
+
+const impactedProperties = PROPERTIES.filter((p) => impacts.has(p.id));
+---
+
+<Base title={entry.data.name} description={`Composite design: ${entry.data.name}`}>
+  <div class="max-w-3xl">
+
+    <nav class="text-[11px] font-mono mb-6 animate-in" style="color: var(--c-text-3);">
+      <a href="/" class="hover:underline underline-offset-2">dasmap</a>
+      <span class="mx-1">/</span>
+      <a href="/compare" class="hover:underline underline-offset-2">composites</a>
+      <span class="mx-1">/</span>
+      <span style="color: var(--c-text-2);">{entry.data.id}</span>
+    </nav>
+
+    <header class="mb-8 animate-in animate-in-delay-1">
+      <h1 class="text-2xl font-semibold tracking-tight mb-2">{entry.data.name}</h1>
+      <MaturityBadge maturity={entry.data.maturity} />
+    </header>
+
+    <section class="mb-8 animate-in animate-in-delay-2">
+      <h2
+        class="text-[11px] font-semibold uppercase tracking-[0.08em] mb-3 pb-2"
+        style="color: var(--c-text-3); border-bottom: 1px solid var(--c-border);"
+      >
+        Atoms
+      </h2>
+      <div class="flex flex-wrap gap-1.5">
+        {compositeAtomIds.map((atomId) => {
+          const atom = ATOMS.find((a) => a.id === atomId);
+          if (!atom) return null;
+          return (
+            <AtomPill
+              id={atom.id}
+              name={atom.name}
+              cat={atom.cat}
+              maturity={atom.maturity}
+              href={`/atoms/${atom.id.toLowerCase()}`}
+            />
+          );
+        })}
+      </div>
+
+      {entry.data.also_requires && entry.data.also_requires.length > 0 && (
+        <div class="mt-3 flex items-center gap-2 flex-wrap">
+          <span class="text-[11px] font-mono" style="color: var(--c-text-3);">also requires:</span>
+          {entry.data.also_requires.map((req: string) => (
+            <span
+              class="text-[11px] font-medium px-2 py-0.5 rounded"
+              style="background: var(--c-surface-dim); color: var(--c-text-2); border: 1px solid var(--c-border);"
+            >
+              {req}
+            </span>
+          ))}
+        </div>
+      )}
+    </section>
+
+    <div class="prose max-w-none mb-10">
+      <Content />
+    </div>
+
+    {impactedProperties.length > 0 && (
+      <section class="mb-10">
+        <h2
+          class="text-[11px] font-semibold uppercase tracking-[0.08em] mb-3 pb-2"
+          style="color: var(--c-text-3); border-bottom: 1px solid var(--c-border);"
+        >
+          Property profile
+        </h2>
+        <table class="w-full text-[13px]">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--c-border);">
+              <th class="text-left px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] w-44" style="color: var(--c-text-3);">Property</th>
+              <th class="text-left px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] w-20" style="color: var(--c-text-3);">Dir</th>
+              <th class="text-left px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em]" style="color: var(--c-text-3);">Contributing atoms</th>
+            </tr>
+          </thead>
+          <tbody>
+            {impactedProperties.map((prop) => {
+              const impact = impacts.get(prop.id)!;
+              const hasBenefits = impact.benefits.length > 0;
+              const hasHurts = impact.hurts.length > 0;
+              return (
+                <tr style="border-bottom: 1px solid var(--c-border);">
+                  <td class="px-2 py-2 align-top">
+                    <a
+                      href={`/properties/${prop.id.toLowerCase()}`}
+                      class="font-mono text-[11px] font-semibold hover:underline underline-offset-2"
+                      style="color: var(--c-text-3);"
+                    >
+                      {prop.id}
+                    </a>
+                    <div class="text-[11px] mt-0.5" style="color: var(--c-text-2);">{prop.name}</div>
+                  </td>
+                  <td class="px-2 py-2 align-top text-[11px] font-medium">
+                    {hasBenefits && hasHurts ? (
+                      <span style="color: var(--c-text-2);">Mixed</span>
+                    ) : hasBenefits ? (
+                      <span style="color: var(--c-green);">Benefit</span>
+                    ) : (
+                      <span style="color: var(--c-red);">Hurt</span>
+                    )}
+                  </td>
+                  <td class="px-2 py-2 align-top">
+                    <div class="flex flex-wrap gap-1">
+                      {impact.benefits.map((atomId) => {
+                        const atom = ATOMS.find(a => a.id === atomId);
+                        return (
+                          <a
+                            href={`/atoms/${atomId.toLowerCase()}`}
+                            class="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded"
+                            style="background: #16a34a14; color: var(--c-green);"
+                          >
+                            <span class="font-mono font-semibold">{atomId}</span>
+                            {atom && <span class="text-[10px]" style="color: var(--c-text-2);">{atom.name}</span>}
+                          </a>
+                        );
+                      })}
+                      {impact.hurts.map((atomId) => {
+                        const atom = ATOMS.find(a => a.id === atomId);
+                        return (
+                          <a
+                            href={`/atoms/${atomId.toLowerCase()}`}
+                            class="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded"
+                            style="background: #dc262614; color: var(--c-red);"
+                          >
+                            <span class="font-mono font-semibold">{atomId}</span>
+                            {atom && <span class="text-[10px]" style="color: var(--c-text-2);">{atom.name}</span>}
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </section>
+    )}
+
+    <footer class="pt-6" style="border-top: 1px solid var(--c-border);">
+      <a
+        href="/compare"
+        class="text-[13px] font-medium hover:underline underline-offset-2"
+        style="color: var(--c-text-3);"
+      >
+        &larr; Comparison table
+      </a>
+    </footer>
+
+  </div>
+</Base>

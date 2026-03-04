@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+import MatrixView from '../islands/MatrixView';
+---
+
+<Base title="Matrix" description="Atom × property impact matrix" wide>
+  <div class="space-y-4">
+    <div class="animate-in">
+      <nav class="text-[11px] font-mono mb-3" style="color: var(--c-text-3);">
+        <a href="/" class="hover:underline underline-offset-2">dasmap</a>
+        <span class="mx-1">/</span>
+        <span style="color: var(--c-text-2);">matrix</span>
+      </nav>
+      <h1 class="text-2xl font-semibold tracking-tight">Property matrix</h1>
+      <p class="text-[14px] mt-1" style="color: var(--c-text-2);">
+        How each atom affects the 15 evaluation properties.
+        <span class="font-mono text-[12px]" style="color: #22c55e;">&#9679;</span> benefits,
+        <span class="font-mono text-[12px]" style="color: #ef4444;">&#9679;</span> hurts.
+      </p>
+    </div>
+    <div class="animate-in animate-in-delay-1">
+      <MatrixView client:load />
+    </div>
+  </div>
+</Base>

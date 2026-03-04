@@ -1,0 +1,64 @@
+---
+import Base from '../layouts/Base.astro';
+import { ATOMS } from '../data/atoms';
+import { CATEGORIES } from '../data/categories';
+import { MATURITY_COLORS, MATURITY_LABELS } from '../data/maturity';
+
+const byMaturity: Record<number, typeof ATOMS> = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+for (const atom of ATOMS) {
+  byMaturity[atom.maturity].push(atom);
+}
+---
+
+<Base title="Timeline" description="Atoms organized by maturity level" wide>
+  <div class="space-y-6">
+    <div class="animate-in">
+      <nav class="text-[11px] font-mono mb-3" style="color: var(--c-text-3);">
+        <a href="/" class="hover:underline underline-offset-2">dasmap</a>
+        <span class="mx-1">/</span>
+        <span style="color: var(--c-text-2);">timeline</span>
+      </nav>
+      <h1 class="text-2xl font-semibold tracking-tight">Maturity timeline</h1>
+      <p class="text-[14px] mt-1" style="color: var(--c-text-2);">
+        Atoms organized by implementation maturity, from idea to shipped.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 animate-in animate-in-delay-1">
+      {([1, 2, 3, 4, 5] as const).map(m => {
+        const color = MATURITY_COLORS[m];
+        const label = MATURITY_LABELS[m];
+        const atoms = byMaturity[m];
+        return (
+          <div>
+            <div class="flex items-baseline gap-2 mb-3 pb-2" style={{ borderBottom: `2px solid ${color}` }}>
+              <span class="font-mono text-sm font-bold" style={{ color }}>M{m}</span>
+              <span class="text-[13px] font-semibold" style={{ color }}>{label}</span>
+              <span class="text-[11px] font-mono ml-auto" style="color: var(--c-text-3);">{atoms.length}</span>
+            </div>
+            <div class="space-y-1">
+              {atoms.map(atom => {
+                const cat = CATEGORIES[atom.cat as keyof typeof CATEGORIES];
+                return (
+                  <a
+                    href={`/atoms/${atom.id.toLowerCase()}`}
+                    class="block px-3 py-2 rounded transition-colors"
+                    style={{
+                      borderLeft: `2px solid ${cat.color}`,
+                      background: `${cat.color}06`,
+                    }}
+                  >
+                    <div class="flex items-baseline gap-1.5">
+                      <span class="font-mono text-[11px] font-semibold shrink-0" style={{ color: cat.color }}>{atom.id}</span>
+                      <span class="text-[12px] leading-tight truncate" style="color: var(--c-text-2);">{atom.name}</span>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</Base>

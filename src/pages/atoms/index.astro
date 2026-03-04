@@ -1,0 +1,183 @@
+---
+import Base from '../../layouts/Base.astro';
+import { ATOMS } from '../../data/atoms';
+import { EDGES } from '../../data/edges';
+import { CATEGORIES } from '../../data/categories';
+import { MATURITY_COLORS, MATURITY_LABELS } from '../../data/maturity';
+
+const catFilter = Astro.url.searchParams.get('cat') ?? '';
+const maturityFilter = Astro.url.searchParams.get('maturity') ?? '';
+
+const edgeCounts: Record<string, number> = {};
+for (const edge of EDGES) {
+  edgeCounts[edge.from] = (edgeCounts[edge.from] ?? 0) + 1;
+  edgeCounts[edge.to] = (edgeCounts[edge.to] ?? 0) + 1;
+}
+
+const filteredAtoms = ATOMS.filter(atom => {
+  if (catFilter && atom.cat !== catFilter) return false;
+  if (maturityFilter && atom.maturity !== Number(maturityFilter)) return false;
+  return true;
+});
+
+const categoryEntries = Object.entries(CATEGORIES) as [string, typeof CATEGORIES[keyof typeof CATEGORIES]][];
+const maturityLevels = [1, 2, 3, 4, 5] as const;
+
+function buildFilterUrl(params: { cat?: string; maturity?: string }): string {
+  const sp = new URLSearchParams();
+  const cat = params.cat !== undefined ? params.cat : catFilter;
+  const mat = params.maturity !== undefined ? params.maturity : maturityFilter;
+  if (cat) sp.set('cat', cat);
+  if (mat) sp.set('maturity', mat);
+  const qs = sp.toString();
+  return qs ? `?${qs}` : '/atoms';
+}
+---
+
+<Base title="Atoms" description="All DAS design atoms">
+  <div class="space-y-6">
+
+    <!-- Header -->
+    <div class="animate-in">
+      <nav class="text-[11px] font-mono mb-3" style="color: var(--c-text-3);">
+        <a href="/" class="hover:underline underline-offset-2">dasmap</a>
+        <span class="mx-1">/</span>
+        <span style="color: var(--c-text-2);">atoms</span>
+      </nav>
+      <div class="flex items-baseline gap-3">
+        <h1 class="text-2xl font-semibold tracking-tight">Atoms</h1>
+        <span class="font-mono text-[12px]" style="color: var(--c-text-3);">
+          {filteredAtoms.length}/{ATOMS.length}
+          {(catFilter || maturityFilter) && (
+            <a href="/atoms" class="ml-2 underline underline-offset-2 hover:opacity-70">clear</a>
+          )}
+        </span>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap gap-x-4 gap-y-2 items-center animate-in animate-in-delay-1">
+      <!-- Category -->
+      <div class="flex flex-wrap gap-1 items-center">
+        <a
+          href={buildFilterUrl({ cat: '' })}
+          class="text-[11px] font-medium px-2 py-0.5 rounded transition-colors"
+          style={{
+            background: !catFilter ? 'var(--c-text)' : 'transparent',
+            color: !catFilter ? 'var(--c-bg)' : 'var(--c-text-3)',
+            border: !catFilter ? '1px solid var(--c-text)' : '1px solid var(--c-border)',
+          }}
+        >All</a>
+        {categoryEntries.map(([id, cat]) => (
+          <a
+            href={buildFilterUrl({ cat: id })}
+            class="text-[11px] font-mono font-semibold px-2 py-0.5 rounded transition-colors"
+            style={catFilter === id
+              ? { background: cat.color, borderColor: cat.color, color: '#fff', border: `1px solid ${cat.color}` }
+              : { color: cat.color, border: `1px solid ${cat.color}33`, background: `${cat.color}08` }
+            }
+          >
+            {id}
+          </a>
+        ))}
+      </div>
+
+      <div class="w-px h-4" style="background: var(--c-border);" />
+
+      <!-- Maturity -->
+      <div class="flex flex-wrap gap-1 items-center">
+        <a
+          href={buildFilterUrl({ maturity: '' })}
+          class="text-[11px] font-medium px-2 py-0.5 rounded transition-colors"
+          style={{
+            background: !maturityFilter ? 'var(--c-text)' : 'transparent',
+            color: !maturityFilter ? 'var(--c-bg)' : 'var(--c-text-3)',
+            border: !maturityFilter ? '1px solid var(--c-text)' : '1px solid var(--c-border)',
+          }}
+        >All</a>
+        {maturityLevels.map(m => (
+          <a
+            href={buildFilterUrl({ maturity: String(m) })}
+            class="text-[11px] font-mono font-semibold px-2 py-0.5 rounded transition-colors"
+            style={maturityFilter === String(m)
+              ? { background: MATURITY_COLORS[m], borderColor: MATURITY_COLORS[m], color: '#fff', border: `1px solid ${MATURITY_COLORS[m]}` }
+              : { color: MATURITY_COLORS[m], border: `1px solid ${MATURITY_COLORS[m]}44`, background: `${MATURITY_COLORS[m]}0c` }
+            }
+          >
+            M{m}
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="animate-in animate-in-delay-2">
+      <table class="w-full text-sm">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--c-border);">
+            <th class="text-left px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.06em] font-mono w-14" style="color: var(--c-text-3);">ID</th>
+            <th class="text-left px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.06em]" style="color: var(--c-text-3);">Name</th>
+            <th class="text-left px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.06em] hidden sm:table-cell" style="color: var(--c-text-3);">Cat</th>
+            <th class="text-left px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.06em] hidden md:table-cell" style="color: var(--c-text-3);">Maturity</th>
+            <th class="text-right px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.06em] hidden lg:table-cell w-16" style="color: var(--c-text-3);">Edges</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredAtoms.map(atom => {
+            const cat = CATEGORIES[atom.cat as keyof typeof CATEGORIES];
+            const matColor = MATURITY_COLORS[atom.maturity as 1|2|3|4|5];
+            const matLabel = MATURITY_LABELS[atom.maturity as 1|2|3|4|5];
+            const edgeCount = edgeCounts[atom.id] ?? 0;
+            return (
+              <tr
+                class="group cursor-pointer transition-colors"
+                style="border-bottom: 1px solid var(--c-border);"
+                onclick={`window.location='/atoms/${atom.id.toLowerCase()}'`}
+              >
+                <td class="px-3 py-2.5">
+                  <span
+                    class="font-mono text-[12px] font-semibold"
+                    style={{ color: cat.color }}
+                  >
+                    {atom.id}
+                  </span>
+                </td>
+                <td class="px-3 py-2.5">
+                  <a
+                    href={`/atoms/${atom.id.toLowerCase()}`}
+                    class="font-medium text-[13px] group-hover:underline underline-offset-2"
+                    style="color: var(--c-text); text-decoration-color: var(--c-border-strong);"
+                  >
+                    {atom.name}
+                  </a>
+                </td>
+                <td class="px-3 py-2.5 hidden sm:table-cell">
+                  <span class="text-[11px] font-medium" style={{ color: cat.color }}>
+                    {atom.cat}
+                  </span>
+                </td>
+                <td class="px-3 py-2.5 hidden md:table-cell">
+                  <span class="inline-flex items-center gap-1 text-[11px] font-medium" style={{ color: matColor }}>
+                    <span class="w-1.5 h-1.5 rounded-full" style={{ background: matColor }} />
+                    M{atom.maturity}
+                  </span>
+                </td>
+                <td class="px-3 py-2.5 hidden lg:table-cell text-right">
+                  <span class="font-mono text-[11px]" style="color: var(--c-text-3);">{edgeCount}</span>
+                </td>
+              </tr>
+            );
+          })}
+          {filteredAtoms.length === 0 && (
+            <tr>
+              <td colspan="5" class="px-3 py-12 text-center text-sm" style="color: var(--c-text-3);">
+                No atoms match the current filters.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</Base>

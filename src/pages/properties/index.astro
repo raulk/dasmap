@@ -1,0 +1,52 @@
+---
+import Base from '../../layouts/Base.astro';
+import { ATOMS } from '../../data/atoms';
+import { PROPERTIES } from '../../data/properties';
+
+const cards = PROPERTIES.map((prop) => {
+  const benefitCount = ATOMS.filter((a) => a.benefits.includes(prop.id)).length;
+  const hurtCount = ATOMS.filter((a) => a.hurts.includes(prop.id)).length;
+  return { prop, benefitCount, hurtCount };
+});
+---
+
+<Base title="Properties" description="DAS design-space properties and their atom relationships">
+  <div class="space-y-8">
+
+    <div class="animate-in">
+      <nav class="text-[11px] font-mono mb-3" style="color: var(--c-text-3);">
+        <a href="/" class="hover:underline underline-offset-2">dasmap</a>
+        <span class="mx-1">/</span>
+        <span style="color: var(--c-text-2);">properties</span>
+      </nav>
+      <h1 class="text-2xl font-semibold tracking-tight">Properties</h1>
+      <p class="text-[14px] mt-1" style="color: var(--c-text-2);">
+        {PROPERTIES.length} system properties evaluated across all design atoms.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 animate-in animate-in-delay-1">
+      {cards.map(({ prop, benefitCount, hurtCount }) => (
+        <a
+          href={`/properties/${prop.id.toLowerCase()}`}
+          class="block p-4 transition-all hover:translate-y-[-1px]"
+          style="background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 6px;"
+        >
+          <div class="flex items-baseline gap-2 mb-2">
+            <span class="font-mono text-lg font-bold" style="color: var(--c-text-3);">
+              {prop.id}
+            </span>
+            <h2 class="text-[13px] font-semibold leading-snug" style="color: var(--c-text);">{prop.name}</h2>
+          </div>
+          <p class="text-[12px] leading-relaxed mb-3 line-clamp-2" style="color: var(--c-text-2);">{prop.description}</p>
+          <div class="flex items-center gap-3 text-[11px] font-mono font-medium">
+            <span style="color: var(--c-green);">{benefitCount} benefit{benefitCount !== 1 ? 's' : ''}</span>
+            <span style="color: var(--c-text-4);">|</span>
+            <span style="color: var(--c-red);">{hurtCount} hurt{hurtCount !== 1 ? 's' : ''}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+
+  </div>
+</Base>

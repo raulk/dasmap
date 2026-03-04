@@ -1,0 +1,106 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { ATOMS } from '../../data/atoms';
+import { CATEGORIES } from '../../data/categories';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('properties');
+  return entries.map((entry) => ({
+    params: { id: entry.data.id.toLowerCase() },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+
+const propId = entry.data.id;
+
+const benefitingAtoms = ATOMS
+  .filter((a) => a.benefits.includes(propId))
+  .sort((a, b) => b.maturity - a.maturity);
+
+const hurtingAtoms = ATOMS
+  .filter((a) => a.hurts.includes(propId))
+  .sort((a, b) => b.maturity - a.maturity);
+---
+
+<Base title={entry.data.name} description={`Property ${propId}: ${entry.data.name}`}>
+  <div class="max-w-3xl">
+
+    <nav class="text-[11px] font-mono mb-6 animate-in" style="color: var(--c-text-3);">
+      <a href="/" class="hover:underline underline-offset-2">dasmap</a>
+      <span class="mx-1">/</span>
+      <a href="/properties" class="hover:underline underline-offset-2">properties</a>
+      <span class="mx-1">/</span>
+      <span style="color: var(--c-text-2);">{propId}</span>
+    </nav>
+
+    <header class="mb-8 animate-in animate-in-delay-1">
+      <div class="font-mono text-[32px] font-bold leading-none mb-2" style="color: var(--c-text-3);">
+        {propId}
+      </div>
+      <h1 class="text-xl font-semibold tracking-tight">{entry.data.name}</h1>
+    </header>
+
+    <div class="prose max-w-none mb-10 animate-in animate-in-delay-2">
+      <Content />
+    </div>
+
+    {benefitingAtoms.length > 0 && (
+      <section class="mb-8">
+        <h2
+          class="text-[11px] font-semibold uppercase tracking-[0.08em] mb-3 pb-2"
+          style="color: var(--c-text-3); border-bottom: 1px solid var(--c-border);"
+        >
+          Benefits this property
+          <span class="font-mono ml-1" style="color: var(--c-green);">{benefitingAtoms.length}</span>
+        </h2>
+        <div class="flex flex-wrap gap-1.5">
+          {benefitingAtoms.map((atom) => {
+            const cat = CATEGORIES[atom.cat as keyof typeof CATEGORIES];
+            return (
+              <a
+                href={`/atoms/${atom.id.toLowerCase()}`}
+                class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium transition-opacity hover:opacity-75"
+                style={{ background: `${cat.color}0c`, color: cat.color, border: `1px solid ${cat.color}22` }}
+              >
+                <span class="font-mono opacity-70">{atom.id}</span>
+                <span class="max-w-24 truncate">{atom.name}</span>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    )}
+
+    {hurtingAtoms.length > 0 && (
+      <section class="mb-8">
+        <h2
+          class="text-[11px] font-semibold uppercase tracking-[0.08em] mb-3 pb-2"
+          style="color: var(--c-text-3); border-bottom: 1px solid var(--c-border);"
+        >
+          Hurts this property
+          <span class="font-mono ml-1" style="color: var(--c-red);">{hurtingAtoms.length}</span>
+        </h2>
+        <div class="flex flex-wrap gap-1.5">
+          {hurtingAtoms.map((atom) => {
+            const cat = CATEGORIES[atom.cat as keyof typeof CATEGORIES];
+            return (
+              <a
+                href={`/atoms/${atom.id.toLowerCase()}`}
+                class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium transition-opacity hover:opacity-75"
+                style={{ background: `${cat.color}0c`, color: cat.color, border: `1px solid ${cat.color}22` }}
+              >
+                <span class="font-mono opacity-70">{atom.id}</span>
+                <span class="max-w-24 truncate">{atom.name}</span>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    )}
+
+  </div>
+</Base>
