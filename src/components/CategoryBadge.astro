@@ -10,8 +10,9 @@ const category = CATEGORIES[cat as keyof typeof CATEGORIES];
 ---
 
 <span
-  class="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded"
-  style={{ background: `${category.color}10`, color: category.color, border: `1px solid ${category.color}22` }}
+  class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded"
+  style="background: var(--c-surface-dim); color: var(--c-text-2); border: 1px solid var(--c-border);"
 >
-  <span class="font-mono mr-1">{cat}</span>{category.name}
+  <span class="font-mono font-semibold" style={{ color: category.color }}>{cat}</span>
+  {category.name}
 </span>

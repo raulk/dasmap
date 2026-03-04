@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { ATOMS } from '../../data/atoms';
 import { CATEGORIES } from '../../data/categories';
+import { BASE } from '../../lib/base';
 
 export async function getStaticPaths() {
   const entries = await getCollection('properties');
@@ -30,9 +31,9 @@ const hurtingAtoms = ATOMS
   <div class="max-w-3xl">
 
     <nav class="text-[11px] font-mono mb-6 animate-in" style="color: var(--c-text-3);">
-      <a href="/" class="hover:underline underline-offset-2">dasmap</a>
+      <a href={`${BASE}/`} class="hover:underline underline-offset-2">dasmap</a>
       <span class="mx-1">/</span>
-      <a href="/properties" class="hover:underline underline-offset-2">properties</a>
+      <a href={`${BASE}/properties`} class="hover:underline underline-offset-2">properties</a>
       <span class="mx-1">/</span>
       <span style="color: var(--c-text-2);">{propId}</span>
     </nav>
@@ -62,12 +63,12 @@ const hurtingAtoms = ATOMS
             const cat = CATEGORIES[atom.cat as keyof typeof CATEGORIES];
             return (
               <a
-                href={`/atoms/${atom.id.toLowerCase()}`}
+                href={`${BASE}/atoms/${atom.id.toLowerCase()}`}
                 class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium transition-opacity hover:opacity-75"
-                style={{ background: `${cat.color}0c`, color: cat.color, border: `1px solid ${cat.color}22` }}
+                style="background: var(--c-surface-dim); color: var(--c-text-2); border: 1px solid var(--c-border);"
               >
-                <span class="font-mono opacity-70">{atom.id}</span>
-                <span class="max-w-24 truncate">{atom.name}</span>
+                <span class="font-mono font-semibold" style={{ color: cat.color }}>{atom.id}</span>
+                <span class="max-w-28 truncate">{atom.name}</span>
               </a>
             );
           })}
@@ -89,12 +90,12 @@ const hurtingAtoms = ATOMS
             const cat = CATEGORIES[atom.cat as keyof typeof CATEGORIES];
             return (
               <a
-                href={`/atoms/${atom.id.toLowerCase()}`}
+                href={`${BASE}/atoms/${atom.id.toLowerCase()}`}
                 class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium transition-opacity hover:opacity-75"
-                style={{ background: `${cat.color}0c`, color: cat.color, border: `1px solid ${cat.color}22` }}
+                style="background: var(--c-surface-dim); color: var(--c-text-2); border: 1px solid var(--c-border);"
               >
-                <span class="font-mono opacity-70">{atom.id}</span>
-                <span class="max-w-24 truncate">{atom.name}</span>
+                <span class="font-mono font-semibold" style={{ color: cat.color }}>{atom.id}</span>
+                <span class="max-w-28 truncate">{atom.name}</span>
               </a>
             );
           })}

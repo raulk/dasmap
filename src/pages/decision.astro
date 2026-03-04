@@ -1,13 +1,14 @@
 ---
 import Base from '../layouts/Base.astro';
 import DecisionView from '../islands/DecisionView';
+import { BASE } from '../lib/base';
 ---
 
 <Base title="Decision" description="Decision tree for choosing DAS building blocks" wide>
   <div class="space-y-4">
     <div class="animate-in">
       <nav class="text-[11px] font-mono mb-3" style="color: var(--c-text-3);">
-        <a href="/" class="hover:underline underline-offset-2">dasmap</a>
+        <a href={`${BASE}/`} class="hover:underline underline-offset-2">dasmap</a>
         <span class="mx-1">/</span>
         <span style="color: var(--c-text-2);">decision</span>
       </nav>

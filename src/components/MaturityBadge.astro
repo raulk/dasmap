@@ -1,5 +1,5 @@
 ---
-import { MATURITY_LABELS, MATURITY_COLORS } from '../data/maturity';
+import { MATURITY_LABELS } from '../data/maturity';
 
 interface Props {
   maturity: number;
@@ -7,16 +7,11 @@ interface Props {
 
 const { maturity } = Astro.props;
 const label = MATURITY_LABELS[maturity as 1|2|3|4|5];
-const color = MATURITY_COLORS[maturity as 1|2|3|4|5];
 ---
 
 <span
-  class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded"
-  style={{ background: `${color}14`, color, border: `1px solid ${color}28` }}
+  class="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded"
+  style="background: var(--c-surface-dim); color: var(--c-text-2); border: 1px solid var(--c-border);"
 >
-  <span
-    class="w-1.5 h-1.5 rounded-full"
-    style={{ background: color }}
-  />
-  M{maturity} {label}
+  Stage: {label}
 </span>

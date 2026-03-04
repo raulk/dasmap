@@ -1,43 +1,34 @@
-# Astro Starter Kit: Minimal
+# dasmap
+
+A structured map of Ethereum's data availability sampling (DAS) design space: atomic building blocks, their properties, relationships, and how they compose into full protocol proposals.
+
+Live at [raulk.github.io/dasmap](https://raulk.github.io/dasmap).
+
+## Local development
+
+Requires Node.js 22+ and pnpm 10+.
 
 ```sh
-pnpm create astro@latest -- --template minimal
+pnpm install
+pnpm dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Opens at `http://localhost:4321`.
 
-## 🚀 Project Structure
+## Build
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```sh
+pnpm build
+pnpm preview
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Stack
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+- [Astro 5](https://astro.build) (static site generation)
+- [React 19](https://react.dev) (interactive islands)
+- [Tailwind CSS v4](https://tailwindcss.com)
+- [D3](https://d3js.org) (graph visualization)
 
-Any static assets, like images, can be placed in the `public/` directory.
+## Deployment
 
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Deployed to GitHub Pages via the workflow in `.github/workflows/deploy.yml`. Pushes to `main` trigger a build and deploy automatically.

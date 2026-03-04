@@ -207,8 +207,8 @@ function AtomChip({ atomId }: { atomId: string }) {
         gap: '6px',
         padding: '3px 7px',
         borderRadius: '4px',
-        background: `${cat.color}18`,
-        border: `1px solid ${cat.color}44`,
+        background: '#18181b',
+        border: '1px solid #3f3f46',
         textDecoration: 'none',
         cursor: 'pointer',
         marginTop: '4px',
@@ -228,7 +228,7 @@ function AtomChip({ atomId }: { atomId: string }) {
       <span
         style={{
           fontSize: '11px',
-          color: '#52525b',
+          color: '#a1a1aa',
           lineHeight: 1.3,
           overflow: 'hidden',
           textOverflow: 'ellipsis',
@@ -273,11 +273,6 @@ function QuestionNode({ node }: { node: NodeDef }) {
 
 function LeafNode({ node }: { node: NodeDef }) {
   const atomIds = node.atomIds ?? [];
-  const firstAtom = ATOMS.find((a) => a.id === atomIds[0]);
-  const accentColor = firstAtom
-    ? CATEGORIES[firstAtom.cat as CategoryId].color
-    : '#6366f1';
-
   return (
     <div
       style={{
@@ -286,8 +281,8 @@ function LeafNode({ node }: { node: NodeDef }) {
         top: node.y,
         width: node.w,
         background: '#09090b',
-        border: `1px solid ${accentColor}55`,
-        borderTop: `3px solid ${accentColor}`,
+        border: '1px solid #3f3f46',
+        borderTop: '3px solid #52525b',
         borderRadius: '8px',
         padding: '8px 10px',
         boxSizing: 'border-box',

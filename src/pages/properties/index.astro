@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import { ATOMS } from '../../data/atoms';
 import { PROPERTIES } from '../../data/properties';
+import { BASE } from '../../lib/base';
 
 const cards = PROPERTIES.map((prop) => {
   const benefitCount = ATOMS.filter((a) => a.benefits.includes(prop.id)).length;
@@ -15,7 +16,7 @@ const cards = PROPERTIES.map((prop) => {
 
     <div class="animate-in">
       <nav class="text-[11px] font-mono mb-3" style="color: var(--c-text-3);">
-        <a href="/" class="hover:underline underline-offset-2">dasmap</a>
+        <a href={`${BASE}/`} class="hover:underline underline-offset-2">dasmap</a>
         <span class="mx-1">/</span>
         <span style="color: var(--c-text-2);">properties</span>
       </nav>
@@ -28,7 +29,7 @@ const cards = PROPERTIES.map((prop) => {
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 animate-in animate-in-delay-1">
       {cards.map(({ prop, benefitCount, hurtCount }) => (
         <a
-          href={`/properties/${prop.id.toLowerCase()}`}
+          href={`${BASE}/properties/${prop.id.toLowerCase()}`}
           class="block p-4 transition-all hover:translate-y-[-1px]"
           style="background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 6px;"
         >

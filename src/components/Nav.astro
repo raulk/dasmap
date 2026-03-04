@@ -1,14 +1,16 @@
 ---
+import { BASE } from '../lib/base';
+
 const pathname = Astro.url.pathname;
 
 const links = [
-  { href: '/atoms',      label: 'Atoms' },
-  { href: '/properties', label: 'Properties' },
-  { href: '/graph',      label: 'Graph' },
-  { href: '/matrix',     label: 'Matrix' },
-  { href: '/compare',    label: 'Compare' },
-  { href: '/decision',   label: 'Decision' },
-  { href: '/timeline',   label: 'Timeline' },
+  { href: `${BASE}/atoms`,      label: 'Atoms' },
+  { href: `${BASE}/properties`, label: 'Properties' },
+  { href: `${BASE}/graph`,      label: 'Graph' },
+  { href: `${BASE}/matrix`,     label: 'Matrix' },
+  { href: `${BASE}/compare`,    label: 'Compare' },
+  { href: `${BASE}/decision`,   label: 'Decision' },
+  { href: `${BASE}/timeline`,   label: 'Timeline' },
 ];
 
 function isActive(href: string): boolean {
@@ -19,7 +21,7 @@ function isActive(href: string): boolean {
 <header style="background: var(--c-nav);">
   <div class="mx-auto max-w-screen-xl px-6 h-11 flex items-center gap-8">
     <a
-      href="/"
+      href={`${BASE}/`}
       class="font-mono font-bold text-sm tracking-tight shrink-0"
       style="color: var(--c-nav-active); letter-spacing: -0.03em;"
     >

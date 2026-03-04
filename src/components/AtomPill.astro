@@ -1,6 +1,5 @@
 ---
 import { CATEGORIES } from '../data/categories';
-import { MATURITY_COLORS } from '../data/maturity';
 
 interface Props {
   id: string;
@@ -10,36 +9,25 @@ interface Props {
   href?: string;
 }
 
-const { id, name, cat, maturity, href } = Astro.props;
+const { id, name, cat, href } = Astro.props;
 const category = CATEGORIES[cat as keyof typeof CATEGORIES];
-const maturityColor = MATURITY_COLORS[maturity as 1|2|3|4|5];
 ---
 
 {href ? (
   <a
     href={href}
     class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium transition-opacity hover:opacity-75"
-    style={{ background: `${category.color}10`, color: category.color, border: `1px solid ${category.color}22` }}
+    style="background: var(--c-surface-dim); color: var(--c-text-2); border: 1px solid var(--c-border);"
   >
-    <span class="font-mono text-[11px] opacity-70">{id}</span>
-    <span class="max-w-28 truncate">{name}</span>
-    <span
-      class="w-1.5 h-1.5 rounded-full shrink-0"
-      style={{ background: maturityColor }}
-      title={`Maturity ${maturity}`}
-    />
+    <span class="font-mono text-[11px] font-semibold" style={{ color: category.color }}>{id}</span>
+    <span class="max-w-48 truncate">{name}</span>
   </a>
 ) : (
   <span
     class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium"
-    style={{ background: `${category.color}10`, color: category.color, border: `1px solid ${category.color}22` }}
+    style="background: var(--c-surface-dim); color: var(--c-text-2); border: 1px solid var(--c-border);"
   >
-    <span class="font-mono text-[11px] opacity-70">{id}</span>
-    <span class="max-w-28 truncate">{name}</span>
-    <span
-      class="w-1.5 h-1.5 rounded-full shrink-0"
-      style={{ background: maturityColor }}
-      title={`Maturity ${maturity}`}
-    />
+    <span class="font-mono text-[11px] font-semibold" style={{ color: category.color }}>{id}</span>
+    <span class="max-w-48 truncate">{name}</span>
   </span>
 )}

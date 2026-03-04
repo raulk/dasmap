@@ -5,6 +5,7 @@ import AtomPill from '../../components/AtomPill.astro';
 import MaturityBadge from '../../components/MaturityBadge.astro';
 import { ATOMS } from '../../data/atoms';
 import { PROPERTIES } from '../../data/properties';
+import { BASE } from '../../lib/base';
 
 export async function getStaticPaths() {
   const entries = await getCollection('composites');
@@ -40,9 +41,9 @@ const impactedProperties = PROPERTIES.filter((p) => impacts.has(p.id));
   <div class="max-w-3xl">
 
     <nav class="text-[11px] font-mono mb-6 animate-in" style="color: var(--c-text-3);">
-      <a href="/" class="hover:underline underline-offset-2">dasmap</a>
+      <a href={`${BASE}/`} class="hover:underline underline-offset-2">dasmap</a>
       <span class="mx-1">/</span>
-      <a href="/compare" class="hover:underline underline-offset-2">composites</a>
+      <a href={`${BASE}/compare`} class="hover:underline underline-offset-2">composites</a>
       <span class="mx-1">/</span>
       <span style="color: var(--c-text-2);">{entry.data.id}</span>
     </nav>
@@ -69,7 +70,7 @@ const impactedProperties = PROPERTIES.filter((p) => impacts.has(p.id));
               name={atom.name}
               cat={atom.cat}
               maturity={atom.maturity}
-              href={`/atoms/${atom.id.toLowerCase()}`}
+              href={`${BASE}/atoms/${atom.id.toLowerCase()}`}
             />
           );
         })}
@@ -119,7 +120,7 @@ const impactedProperties = PROPERTIES.filter((p) => impacts.has(p.id));
                 <tr style="border-bottom: 1px solid var(--c-border);">
                   <td class="px-2 py-2 align-top">
                     <a
-                      href={`/properties/${prop.id.toLowerCase()}`}
+                      href={`${BASE}/properties/${prop.id.toLowerCase()}`}
                       class="font-mono text-[11px] font-semibold hover:underline underline-offset-2"
                       style="color: var(--c-text-3);"
                     >
@@ -142,7 +143,7 @@ const impactedProperties = PROPERTIES.filter((p) => impacts.has(p.id));
                         const atom = ATOMS.find(a => a.id === atomId);
                         return (
                           <a
-                            href={`/atoms/${atomId.toLowerCase()}`}
+                            href={`${BASE}/atoms/${atomId.toLowerCase()}`}
                             class="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded"
                             style="background: #16a34a14; color: var(--c-green);"
                           >
@@ -155,7 +156,7 @@ const impactedProperties = PROPERTIES.filter((p) => impacts.has(p.id));
                         const atom = ATOMS.find(a => a.id === atomId);
                         return (
                           <a
-                            href={`/atoms/${atomId.toLowerCase()}`}
+                            href={`${BASE}/atoms/${atomId.toLowerCase()}`}
                             class="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded"
                             style="background: #dc262614; color: var(--c-red);"
                           >
@@ -176,7 +177,7 @@ const impactedProperties = PROPERTIES.filter((p) => impacts.has(p.id));
 
     <footer class="pt-6" style="border-top: 1px solid var(--c-border);">
       <a
-        href="/compare"
+        href={`${BASE}/compare`}
         class="text-[13px] font-medium hover:underline underline-offset-2"
         style="color: var(--c-text-3);"
       >

@@ -4,6 +4,8 @@ import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
+  site: 'https://raulk.github.io',
+  base: '/dasmap',
   integrations: [react()],
   vite: {
     plugins: [tailwindcss()],

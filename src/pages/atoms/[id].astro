@@ -9,6 +9,7 @@ import { EDGES } from '../../data/edges';
 import { COMPOSITES } from '../../data/composites';
 import { CATEGORIES } from '../../data/categories';
 import { PROPERTIES } from '../../data/properties';
+import { BASE } from '../../lib/base';
 
 export async function getStaticPaths() {
   const atoms = await getCollection('atoms');
@@ -58,9 +59,9 @@ const sameCategory = ATOMS.filter(a => a.cat === cat && a.id !== atomId);
 const inComposites = COMPOSITES.filter(c => c.atoms.includes(atomId));
 
 function targetUrl(target: string): string | null {
-  if (target.startsWith('P')) return `/properties/${target.toLowerCase()}`;
+  if (target.startsWith('P')) return `${BASE}/properties/${target.toLowerCase()}`;
   const matchedAtom = ATOMS.find(a => a.id === target);
-  if (matchedAtom) return `/atoms/${target.toLowerCase()}`;
+  if (matchedAtom) return `${BASE}/atoms/${target.toLowerCase()}`;
   return null;
 }
 
@@ -91,9 +92,9 @@ const edgeTypeColors: Record<string, string> = {
 
     <!-- Breadcrumb -->
     <nav class="text-[11px] font-mono mb-6 animate-in" style="color: var(--c-text-3);">
-      <a href="/" class="hover:underline underline-offset-2">dasmap</a>
+      <a href={`${BASE}/`} class="hover:underline underline-offset-2">dasmap</a>
       <span class="mx-1">/</span>
-      <a href="/atoms" class="hover:underline underline-offset-2">atoms</a>
+      <a href={`${BASE}/atoms`} class="hover:underline underline-offset-2">atoms</a>
       <span class="mx-1">/</span>
       <span style="color: var(--c-text-2);">{atomId}</span>
     </nav>
@@ -120,10 +121,16 @@ const edgeTypeColors: Record<string, string> = {
       </div>
     </header>
 
-    <!-- Content -->
+    <!-- Content (hide markdown relationships table; the template renders it better) -->
     <div class="prose max-w-none mb-12 animate-in animate-in-delay-2">
       <Content />
     </div>
+    <style>
+      .prose :global(#relationships),
+      .prose :global(#relationships + table) {
+        display: none;
+      }
+    </style>
 
     <!-- Relationships -->
     {relationships.length > 0 && (
@@ -215,7 +222,7 @@ const edgeTypeColors: Record<string, string> = {
         <div class="flex flex-wrap gap-2">
           {inComposites.map(comp => (
             <a
-              href={`/composites/${comp.id}`}
+              href={`${BASE}/composites/${comp.id}`}
               class="text-[12px] font-medium px-2.5 py-1 rounded hover:opacity-75 transition-opacity"
               style="background: var(--c-surface-dim); color: var(--c-text-2); border: 1px solid var(--c-border);"
             >
@@ -242,7 +249,7 @@ const edgeTypeColors: Record<string, string> = {
               name={a.name}
               cat={a.cat}
               maturity={a.maturity}
-              href={`/atoms/${a.id.toLowerCase()}`}
+              href={`${BASE}/atoms/${a.id.toLowerCase()}`}
             />
           ))}
         </div>

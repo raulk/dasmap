@@ -2,8 +2,9 @@ import { useState, useMemo } from 'react';
 import { ATOMS } from '../data/atoms';
 import { PROPERTIES } from '../data/properties';
 import { CATEGORIES } from '../data/categories';
-import { MATURITY_COLORS, MATURITY_LABELS } from '../data/maturity';
+import { MATURITY_LABELS } from '../data/maturity';
 import type { CategoryId } from '../data/categories';
+import { BASE } from '../lib/base';
 
 type SortKey = 'category' | 'maturity' | 'benefits' | 'hurts';
 
@@ -85,30 +86,29 @@ export default function MatrixView() {
                   alignItems: 'center',
                   gap: 5,
                   padding: '3px 10px',
-                  borderRadius: 9999,
-                  border: `1.5px solid ${catDef.color}`,
-                  background: active ? catDef.color : 'transparent',
-                  color: active ? '#fff' : catDef.color,
+                  borderRadius: 4,
+                  border: '1px solid ' + (active ? '#1c1917' : '#ccc8bf'),
+                  background: active ? '#1c1917' : 'transparent',
+                  color: active ? '#fff' : '#57534e',
                   fontSize: 12,
-                  fontWeight: 600,
+                  fontWeight: 500,
                   cursor: 'pointer',
                   transition: 'all 0.15s',
                   fontFamily: 'inherit',
                 }}
               >
-                <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>{cat}</span>
-                <span style={{ fontWeight: 400 }}>{catDef.name}</span>
+                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 700 }}>{cat}</span>
+                <span>{catDef.name}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Maturity filter */}
+        {/* Stage filter */}
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 12, color: '#a8a29e', fontWeight: 500, minWidth: 64 }}>Maturity</span>
+          <span style={{ fontSize: 12, color: '#a8a29e', fontWeight: 500, minWidth: 64 }}>Stage</span>
           {ALL_MATURITIES.map(m => {
             const active = activeMaturities.has(m);
-            const color = MATURITY_COLORS[m];
             return (
               <button
                 key={m}
@@ -118,18 +118,18 @@ export default function MatrixView() {
                   alignItems: 'center',
                   gap: 5,
                   padding: '3px 10px',
-                  borderRadius: 9999,
-                  border: `1.5px solid ${color}`,
-                  background: active ? color : 'transparent',
-                  color: active ? '#1c1917' : color,
+                  borderRadius: 4,
+                  border: '1px solid ' + (active ? '#1c1917' : '#ccc8bf'),
+                  background: active ? '#1c1917' : 'transparent',
+                  color: active ? '#fff' : '#57534e',
                   fontSize: 12,
-                  fontWeight: 600,
+                  fontWeight: 500,
                   cursor: 'pointer',
                   transition: 'all 0.15s',
                   fontFamily: 'inherit',
                 }}
               >
-                M{m} — {MATURITY_LABELS[m]}
+                {MATURITY_LABELS[m]}
               </button>
             );
           })}
@@ -153,7 +153,7 @@ export default function MatrixView() {
             }}
           >
             <option value="category">Category</option>
-            <option value="maturity">Maturity (desc)</option>
+            <option value="maturity">Stage (desc)</option>
             <option value="benefits">Benefit count (desc)</option>
             <option value="hurts">Hurt count (desc)</option>
           </select>
@@ -167,9 +167,10 @@ export default function MatrixView() {
       <div style={{ overflowX: 'auto', borderRadius: 8, border: '1px solid #e0ddd6' }}>
         <table style={{ borderCollapse: 'collapse', minWidth: '100%', tableLayout: 'fixed' }}>
           <thead>
+            {/* Code row */}
             <tr>
-              {/* Sticky top-left corner */}
               <th
+                rowSpan={2}
                 style={{
                   position: 'sticky',
                   left: 0,
@@ -184,39 +185,62 @@ export default function MatrixView() {
               {PROPERTIES.map(prop => (
                 <th
                   key={prop.id}
-                  title={`${prop.id} ${prop.name}`}
-                  onClick={() => { window.location.href = '/properties/' + prop.id.toLowerCase(); }}
+                  onClick={() => { window.location.href = BASE + '/properties/' + prop.id.toLowerCase(); }}
                   onMouseEnter={() => setHoveredProperty(prop.id)}
                   onMouseLeave={() => setHoveredProperty(null)}
                   style={{
-                    width: 40,
-                    minWidth: 40,
-                    height: 160,
-                    padding: 0,
+                    width: 68,
+                    minWidth: 68,
+                    padding: '6px 0 2px',
+                    borderRight: '1px solid #e0ddd6',
+                    cursor: 'pointer',
+                    background: hoveredProperty === prop.id ? '#f0eeeb' : '#faf9f7',
+                    textAlign: 'center',
+                    verticalAlign: 'bottom',
+                  }}
+                >
+                  <span style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: '#57534e',
+                    userSelect: 'none',
+                  }}>
+                    {prop.id}
+                  </span>
+                </th>
+              ))}
+            </tr>
+            {/* Name row */}
+            <tr>
+              {PROPERTIES.map(prop => (
+                <th
+                  key={prop.id}
+                  onClick={() => { window.location.href = BASE + '/properties/' + prop.id.toLowerCase(); }}
+                  onMouseEnter={() => setHoveredProperty(prop.id)}
+                  onMouseLeave={() => setHoveredProperty(null)}
+                  style={{
+                    width: 68,
+                    minWidth: 68,
+                    padding: '0 4px 6px',
                     borderBottom: '1px solid #e0ddd6',
                     borderRight: '1px solid #e0ddd6',
                     cursor: 'pointer',
                     background: hoveredProperty === prop.id ? '#f0eeeb' : '#faf9f7',
-                    verticalAlign: 'bottom',
-                    position: 'relative',
-                    overflow: 'visible',
+                    textAlign: 'center',
+                    verticalAlign: 'top',
                   }}
                 >
-                  <div style={{
-                    position: 'absolute',
-                    bottom: 8,
-                    left: '50%',
-                    transformOrigin: 'bottom left',
-                    transform: 'rotate(-50deg)',
-                    whiteSpace: 'nowrap',
+                  <span style={{
                     fontSize: 11,
                     fontWeight: 500,
-                    color: '#57534e',
+                    color: '#a8a29e',
+                    lineHeight: '1.25',
                     userSelect: 'none',
+                    display: 'block',
                   }}>
-                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, marginRight: 4 }}>{prop.id}</span>
                     {prop.name}
-                  </div>
+                  </span>
                 </th>
               ))}
             </tr>
@@ -228,7 +252,7 @@ export default function MatrixView() {
               return (
                 <tr
                   key={atom.id}
-                  onClick={() => { window.location.href = '/atoms/' + atom.id.toLowerCase(); }}
+                  onClick={() => { window.location.href = BASE + '/atoms/' + atom.id.toLowerCase(); }}
                   style={{ cursor: 'pointer', background: rowBg }}
                   onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = '#f0eeeb'; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = rowBg; }}
@@ -240,7 +264,6 @@ export default function MatrixView() {
                       left: 0,
                       zIndex: 1,
                       background: 'inherit',
-                      borderLeft: `3px solid ${cat.color}`,
                       borderBottom: '1px solid #e0ddd6',
                       borderRight: '1px solid #e0ddd6',
                       padding: '6px 10px',
@@ -268,16 +291,7 @@ export default function MatrixView() {
                         {atom.name}
                       </span>
                     </div>
-                    <div style={{ marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <div style={{
-                        width: 7,
-                        height: 7,
-                        borderRadius: '50%',
-                        background: MATURITY_COLORS[atom.maturity],
-                        flexShrink: 0,
-                      }} />
-                      <span style={{ fontSize: 10, color: '#a8a29e' }}>M{atom.maturity}</span>
-                    </div>
+                    <span style={{ fontSize: 10, color: '#a8a29e' }}>{MATURITY_LABELS[atom.maturity]}</span>
                   </td>
                   {PROPERTIES.map(prop => {
                     const benefits = atom.benefits.includes(prop.id);
@@ -286,8 +300,8 @@ export default function MatrixView() {
                       <td
                         key={prop.id}
                         style={{
-                          width: 40,
-                          minWidth: 40,
+                          width: 68,
+                          minWidth: 68,
                           textAlign: 'center',
                           verticalAlign: 'middle',
                           padding: '4px 0',

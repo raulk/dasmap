@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import { ATOMS } from '../data/atoms';
 import { EDGES } from '../data/edges';
 import { CATEGORIES } from '../data/categories';
-import { MATURITY_COLORS } from '../data/maturity';
+import { MATURITY_LABELS } from '../data/maturity';
 import { COMPOSITES } from '../data/composites';
 import type { Atom } from '../data/atoms';
 import type { EdgeType } from '../data/edges';
@@ -273,20 +273,23 @@ export default function GraphView() {
                 <button
                   key={cat}
                   onClick={() => toggleCategory(cat)}
-                  title={category.name}
                   style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
                     padding: '2px 8px',
                     borderRadius: '4px',
-                    border: `1px solid ${category.color}`,
-                    background: active ? category.color + '22' : '#fff',
-                    color: active ? category.color : '#a8a29e',
+                    border: '1px solid ' + (active ? '#1c1917' : '#ccc8bf'),
+                    background: active ? '#1c1917' : 'transparent',
+                    color: active ? '#fff' : '#57534e',
                     fontSize: '11px',
                     cursor: 'pointer',
-                    fontWeight: 600,
-                    textDecoration: !active ? 'line-through' : 'none',
+                    fontWeight: 500,
+                    fontFamily: 'inherit',
                   }}
                 >
-                  {cat}
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{cat}</span>
+                  <span>{category.name}</span>
                 </button>
               );
             })}
@@ -390,8 +393,6 @@ export default function GraphView() {
               const isSelected = selectedId === atom.id;
               const r = isSelected ? 18 : 14;
               const opacity = nodeOpacity(atom.id);
-              const maturityColor = MATURITY_COLORS[atom.maturity] ?? MATURITY_COLORS[1];
-
               return (
                 <g
                   key={atom.id}
@@ -406,8 +407,6 @@ export default function GraphView() {
                     stroke={category.color}
                     strokeWidth={isSelected ? 2.5 : 1.5}
                   />
-                  {/* Maturity dot */}
-                  <circle r={3} fill={maturityColor} />
                   {/* Label */}
                   <text
                     textAnchor="middle"
@@ -528,12 +527,13 @@ export default function GraphView() {
                 fontSize: '11px',
                 padding: '2px 7px',
                 borderRadius: '4px',
-                background: (MATURITY_COLORS[selectedAtom.maturity] ?? MATURITY_COLORS[1]) + '28',
-                color: MATURITY_COLORS[selectedAtom.maturity] ?? MATURITY_COLORS[1],
-                fontWeight: 600,
+                background: '#f5f5f4',
+                color: '#78716c',
+                fontWeight: 500,
+                border: '1px solid #e0ddd6',
               }}
             >
-              Maturity {selectedAtom.maturity}
+              {MATURITY_LABELS[selectedAtom.maturity]}
             </span>
           </div>
 
